@@ -6,13 +6,13 @@ using HarmonyLib;
 using REPOLib.Modules;
 using UnityEngine;
 
-namespace StoneBane;
+namespace StoneBaneEnemy;
 
-[BepInPlugin("Netflate.StoneBane", "StoneBane", "1.0.0")]
+[BepInPlugin("VyrusGames.StoneBaneEnemy", "StoneBaneEnemy", "1.0.0")]
 [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
-public class StoneBane : BaseUnityPlugin
+public class StoneBaneEnemy : BaseUnityPlugin
 {
-    internal static StoneBane Instance { get; private set; } = null!;
+    internal static StoneBaneEnemy Instance { get; private set; } = null!;
     internal new static ManualLogSource Logger => Instance._logger;
     private ManualLogSource _logger => base.Logger;
     internal Harmony? Harmony { get; set; }
@@ -34,7 +34,7 @@ public class StoneBane : BaseUnityPlugin
     {
         Harmony ??= new Harmony(Info.Metadata.GUID);
         
-        Logger.LogInfo("Patching StoneBane...");
+        Logger.LogInfo("Patching StoneBaneEnemy...");
         
         Logger.LogInfo("Loading assets...");
         LoadAssets();
@@ -49,12 +49,20 @@ public class StoneBane : BaseUnityPlugin
     
     private static void LoadAssets()
     {
-        AssetBundle StoneBaneAssetBundle = LoadAssetBundle("StoneBane");
+        AssetBundle stonebaneAssetBundle = LoadAssetBundle("enemystonebane");
 
-        Logger.LogInfo("Loading StoneBane setup...");
-        EnemySetup StoneBaneSetup = StoneBaneAssetBundle.LoadAsset<EnemySetup>("Assets/REPO/Mods/plugins/StoneBane/Enemy - StoneBane.asset");
+        Logger.LogInfo("Loading StoneBane enemy setup...");
+        foreach (var name in stonebaneAssetBundle.GetAllAssetNames()) {
+            Debug.Log($"Asset in bundle: {name}");
+        }
         
-        Enemies.RegisterEnemy(StoneBaneSetup);
+        EnemySetup stonebaneEnemySetup = stonebaneAssetBundle.LoadAsset<EnemySetup>("Enemy - StoneBane");
+
+        if (stonebaneAssetBundle == null) {
+            Debug.LogError("stonebaneAssetBundle is NULL! Check LoadAssetBundle.");
+        }
+
+        Enemies.RegisterEnemy(stonebaneEnemySetup);
         
         Logger.LogDebug("Loaded StoneBane enemy!");
     }

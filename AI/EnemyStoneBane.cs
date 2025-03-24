@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
-namespace StoneBane.AI;
+namespace StoneBaneEnemy.AI;
 
-public class EnemyPuppet : MonoBehaviour
+public class EnemyStoneBane : MonoBehaviour
 {
     public enum State
     {
@@ -57,7 +57,7 @@ public class EnemyPuppet : MonoBehaviour
     [SerializeField] public float stateTimer;
         
     [Header("Animation")]
-    [SerializeField] private EnemyPuppetAnimationController animator;
+    [SerializeField] private EnemyStoneBaneAnimationController animator;
     [SerializeField] private SkinnedMeshRenderer _renderer;
     [SerializeField] private AnimationCurve hurtCurve;
 
@@ -80,7 +80,7 @@ public class EnemyPuppet : MonoBehaviour
 
         hurtCurve = AssetManager.instance.animationCurveImpact;
         
-        Debug.Log("THE CHUD HAS ARRIVED!!");
+        Debug.Log("THE CHUD HAS ARRIVED, WOM WOM WOM WOM WOM WOM WOM!!");
     }
 
     private void Update()
@@ -228,6 +228,13 @@ public class EnemyPuppet : MonoBehaviour
     
     private void HeadLookAtLogic()
     {
+
+        if (headLookAtSource == null || headLookAtTarget == null)
+        {
+            Debug.LogError("Missing head transform reference"); // ! TO REMOVE IN FUTURE UPDATES
+            return; 
+        }
+        
         if (currentState == State.Curious && !_enemy.IsStunned() && currentState != State.Stun && _targetPlayer && !EnemyUtil.IsPlayerDisabled(_targetPlayer))
         {
             Vector3 direction = _targetPlayer.PlayerVisionTarget.VisionTransform.position - headLookAtTarget.position;
@@ -289,6 +296,13 @@ public class EnemyPuppet : MonoBehaviour
     
     private void StateIdle()
     {
+
+        if (_navMeshAgent == null || _rigidbody == null)
+        {
+            Debug.LogError("Missing required components in EnemyStoneBane"); // ! TO REMOVE IN FUTURE UPDATES
+            return;
+        }
+        
         if (_stateImpulse)
         {
             _stateImpulse = false;
@@ -407,6 +421,7 @@ public class EnemyPuppet : MonoBehaviour
     
     private void StateInvestigate()
     {
+        Debug.Log("investigating");
         if (_stateImpulse)
         {
             _stateImpulse = false;
@@ -505,6 +520,7 @@ public class EnemyPuppet : MonoBehaviour
 
     public void OnSpawn()
     {
+        Debug.Log("he is spawning.....");
         if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.EnemySpawn(_enemy))
         {
             UpdateState(State.Spawn);
@@ -518,6 +534,11 @@ public class EnemyPuppet : MonoBehaviour
             _targetPosition = EnemyUtil.GetOnInvestigateTriggeredPosition(_investigate);
             UpdateState(State.Investigate);
         }
+    }
+
+    public void OnGrabbed()
+    {
+        // he gonna start yelling here ig, but it will be implemented later, cause meh, who cares 
     }
     
     public void OnVision()
